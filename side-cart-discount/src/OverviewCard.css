@@ -1,0 +1,63 @@
+.overview-card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 24px 32px 0 32px;
+  margin: 16px 0;
+  max-width: 370px;
+}
+.overview-img {
+  display: block;
+  margin: 0 auto 12px auto;
+  max-width: 48px;
+}
+.overview-title {
+  font-size: 2rem;
+  color: #888;
+  font-weight: 600;
+  margin-bottom: 18px;
+  margin-top: 0;
+}
+.overview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
+}
+.overview-row-italic {
+  font-style: italic;
+  color: #888;
+}
+.overview-row-link {
+  color: #53b8c4;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+.overview-edit {
+  color: #53b8c4;
+  cursor: pointer;
+}
+.overview-section {
+  margin: 0 -32px;
+  padding: 18px 32px 0 32px;
+}
+.overview-section-sep {
+  height: 16px;
+  background: #fff;
+}
+.overview-highlight {
+  background: #eaf6fa;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 16px 32px;
+  margin: 0 -32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.overview-row-bold {
+  font-weight: bold;
+  margin-top: 10px;
+}
