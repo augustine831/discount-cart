@@ -66,6 +66,8 @@ const DiscountsLanding: React.FC = () => {
     <div className="discounts-landing" style={{ display: 'flex', gap: 32 }}>
       <div style={{ flex: 2 }}>
         <div className="discounts-header">Discounts
+        </div>
+        <div className="add-discounts">
           <span
             className="add-manual"
             onClick={() => {
@@ -75,8 +77,7 @@ const DiscountsLanding: React.FC = () => {
             }}
           >
             + Add manual discount
-          </span>
-        </div>
+          </span></div>
         <table className="discounts-table">
           <tbody>
             {discounts.map((d, i) => (

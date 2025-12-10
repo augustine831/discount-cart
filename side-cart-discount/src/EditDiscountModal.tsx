@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-
+import './EditDiscountModal.css';
 
 interface EditDiscountModalProps {
   show: boolean;
@@ -35,13 +35,13 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
   const [description, setDescription] = useState('');
   const [total, setTotal] = useState(0);
 
-  const getDiscounts = () => {
+  const getDiscounts = (format?: '%' | '€', val?: number) => {
     const appliedDiscounts = discounts.filter(d => d.enabled && d.id !== discount?.id);
     const formatsAndValues: { format: string; value: number }[] = [];
     appliedDiscounts.forEach(d => {
       formatsAndValues.push({ format: d.format || '%', value: d.value });
     });
-    formatsAndValues.push({ format: discountType, value: discountValue });
+    formatsAndValues.push({ format: format ?? discountType, value: val ?? discountValue });
     let totalDiscount = 0;
     let subtotal = 1000;
     formatsAndValues.forEach(d => {
@@ -50,9 +50,15 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
       } else {
         totalDiscount += d.value;
       }
-    });
+    });    
     setTotal(subtotal - totalDiscount);
   }
+
+  React.useEffect(() => {
+    if (show) {
+      getDiscounts();
+    }
+  }, [show]);
 
   function generateId() {
     return 'discount-' + Math.random().toString(36).substr(2, 9);
@@ -70,38 +76,70 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
       </Modal.Header>
       <Modal.Body>
         <div className="mb-3">For which price do you calculate the discount?</div>
-        <div className="d-flex mb-3">
-          <Button
-            variant={priceType === 'one-time' ? 'info' : 'outline-info'}
-            active={priceType === 'one-time'}
-            disabled={!showAdd ? true : false}
-            onClick={() => showAdd && setPriceType('one-time')}
-          >
-            One time price
-          </Button>
-          <Button
-            variant={priceType === 'monthly' ? 'info' : 'outline-info'}
-            active={priceType === 'monthly'}
-            className="ms-2"
-            disabled={!showAdd ? true : false}
-            onClick={() => showAdd && setPriceType('monthly')}
-          >
-            Monthly price
-          </Button>
-        </div>
+          <div className="discount-type-selector mb-3">
+            <button
+              type="button"
+              className={`discount-type-btn${priceType === 'one-time' ? ' active' : ''}`}
+              disabled={!showAdd}
+              onClick={() => showAdd && setPriceType('one-time')}
+            >
+              One time price
+              <span className="selector-check">
+                {priceType === 'one-time' ? (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="9" fill="none" />
+                    <path d="M5 9.5L8 12.5L13 7.5" stroke="#53b8c4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="8" fill="#f5f5f5" stroke="#eee" strokeWidth="2" />
+                  </svg>
+                )}
+              </span>
+            </button>
+            <button
+              type="button"
+              className={`discount-type-btn${priceType === 'monthly' ? ' active' : ''}`}
+              disabled={!showAdd}
+              onClick={() => showAdd && setPriceType('monthly')}
+            >
+              Monthly price
+              <span className="selector-check">
+                {priceType === 'monthly' ? (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="9" fill="none" />
+                    <path d="M5 9.5L8 12.5L13 7.5" stroke="#53b8c4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="8" fill="#f5f5f5" stroke="#eee" strokeWidth="2" />
+                  </svg>
+                )}
+              </span>
+            </button>
+          </div>
         <Form>
           <Form.Group className="mb-2" controlId="discountType">
             <Form.Label>Discount</Form.Label>
-            <div className="d-flex">
-              <Form.Select value={discountType} onChange={e => setDiscountType(e.target.value as '%' | '€')} style={{ width: '80px', marginRight: '8px' }}>
+            <div className="d-flex discount-value-input">
+              <Form.Select value={discountType} 
+              onChange={e => {
+                  const val = (e.target.value as '%' | '€');
+                  setDiscountType(val);
+                  getDiscounts(val, undefined);
+                }}
+                style={{ width: '80px',}}>
                 <option value="%">%</option>
                 <option value="€">€</option>
               </Form.Select>
               <Form.Control 
                 type="number" 
                 value={discountValue} 
-                onChange={e => setDiscountValue(Number(e.target.value))} 
-                onKeyUp={getDiscounts} 
+                onChange={e => {
+                  const val = Number(e.target.value);
+                  setDiscountValue(val);
+                  getDiscounts(undefined, val);
+                }}
                 placeholder="Value" 
               />
             </div>
