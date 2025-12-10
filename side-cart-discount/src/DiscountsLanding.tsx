@@ -85,7 +85,7 @@ const DiscountsLanding: React.FC = () => {
               <tr key={i}>
                 <td className="discount-name">{d.name}</td>
                 <td className="discount-value">
-                  {d.editable && (
+                  {d.editable && !d.new && (
                     <span
                       className="edit-icon"
                       style={{ cursor: 'pointer' }}
