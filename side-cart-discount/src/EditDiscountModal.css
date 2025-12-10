@@ -118,3 +118,9 @@
 .form-control {
     border-radius: 0px;
 }
+.text-muted.error{
+ color: red !important;
+}
+.form-control.is-invalid{
+  background: #ff000029;
+}

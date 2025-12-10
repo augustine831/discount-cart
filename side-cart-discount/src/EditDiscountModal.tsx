@@ -34,6 +34,7 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
   const [duration, setDuration] = useState('');
   const [description, setDescription] = useState('');
   const [total, setTotal] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const getDiscounts = (format?: '%' | '€', val?: number) => {
     const appliedDiscounts = discounts.filter(d => d.enabled && d.id !== discount?.id);
@@ -67,6 +68,14 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
   React.useEffect(() => {
     setDiscountValue(discount?.value ?? 0);
   }, [discount]);
+
+  React.useEffect(() => {
+    if ((discountType === '%' && discountValue > 5) || (discountType === '€' && discountValue > 50)) {
+      setError(discountType === '%' ? 'Discount cannot exceed 5%' : 'Discount cannot exceed 50€');
+    } else {
+      setError(null);
+    }
+  }, [discountType, discountValue]);
 
 
   return (
@@ -141,9 +150,11 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
                   getDiscounts(undefined, val);
                 }}
                 placeholder="Value" 
+                isInvalid={!!error}
               />
             </div>
-            <Form.Text className="text-muted">The discount cannot exceed 5%</Form.Text>
+            {!error && <Form.Text className="text-muted">The discount cannot exceed 5% or 50€</Form.Text>}
+            {error && <Form.Text className="text-muted error" style={{ color: 'red', marginTop: 4 }}>{error}</Form.Text>}
           </Form.Group>
             {showAdd && (
             <>
@@ -170,7 +181,7 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onHide}>Cancel</Button>
-        <Button variant="info" onClick={() => onSave(discountType, discountValue, priceType, duration, description, discount?.id || generateId())}>Save</Button>
+        <Button variant="info" onClick={() => onSave(discountType, discountValue, priceType, duration, description, discount?.id || generateId())} disabled={!!error}>Save</Button>
       </Modal.Footer>
     </Modal>
   );
