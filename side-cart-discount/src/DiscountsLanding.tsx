@@ -4,7 +4,8 @@ import './DiscountsLanding.css';
 import OverviewCard from './OverviewCard';
 import './OverviewCard.css';
 import EditDiscountModal from './EditDiscountModal';
-
+import penIcon from './assets/pen.png';
+import deleteIcon from './assets/delete.png';
 
 type DiscountType = "one-time" | "monthly";
 interface Discount {
@@ -64,7 +65,7 @@ const DiscountsLanding: React.FC = () => {
 
   return (
     <div className="discounts-landing" style={{ display: 'flex', gap: 32 }}>
-      <div style={{ flex: 2 }}>
+      <div>
         <div className="discounts-header">Discounts
         </div>
         <div className="add-discounts">
@@ -94,7 +95,7 @@ const DiscountsLanding: React.FC = () => {
                         setShowAddDiscount(false);
                       }}
                     >
-                      ✏️
+                      <img src={penIcon} alt="edit discount" />
                     </span>
                   )}
                   - {d.format === '%' ? `${d.value}%` : `€ ${d.value},00`} {d.typeLabel}
@@ -112,7 +113,7 @@ const DiscountsLanding: React.FC = () => {
                             setShowAddDiscount(false);
                           }}
                         >
-                          ✎
+                          <img src={penIcon} alt="edit manual discount" />
                         </span>
                         <span
                           className="delete-icon"
@@ -122,7 +123,7 @@ const DiscountsLanding: React.FC = () => {
                             setDiscounts(updatedDiscounts);
                           }}
                         >
-                          🗑️
+                          <img src={deleteIcon} alt="delete manual discount" />
                         </span>
                       </div>
                     ) : (
@@ -154,7 +155,7 @@ const DiscountsLanding: React.FC = () => {
           <div>Checkout</div>
         </div>
       </div>
-      <div style={{ flex: 1 }}>
+      <div>
         <OverviewCard
           monthlyPrice={10}
           onetimePrice={1000}

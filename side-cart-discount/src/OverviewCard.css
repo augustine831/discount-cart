@@ -4,7 +4,7 @@
   box-shadow: 0 2px 8px #0001;
   padding: 24px 32px 0 32px;
   margin: 16px 0;
-  max-width: 370px;
+  max-width: 450px;
   font-family: 'Segoe UI', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -24,6 +24,7 @@
 }
 .overview-row {
   display: flex;
+  gap: 32px;
   justify-content: space-between;
   align-items: center;
   font-size: 1.08rem;
