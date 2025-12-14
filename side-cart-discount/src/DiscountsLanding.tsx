@@ -37,20 +37,6 @@ function generateId() {
   return 'discount-' + Math.random().toString(36).substr(2, 9);
 }
 
-const calculateOnetimeCosts = (discounts: Discount[], onetimePrice: number, additionalDiscount: number): number => {
-  const enabledDiscounts = discounts.filter(d => d.enabled);
-  let totalDiscount = 0;
-  let subtotal = onetimePrice;
-  enabledDiscounts.forEach(d => {
-    if (d.format === '%') {
-      totalDiscount += subtotal * (d.value / 100);
-    } else {
-      totalDiscount += d.value;
-    }
-  });
-  totalDiscount += additionalDiscount;
-  return subtotal - totalDiscount;
-};
 
 const DiscountsLanding: React.FC = () => {
   const [discounts, setDiscounts] = React.useState(initialDiscounts);
