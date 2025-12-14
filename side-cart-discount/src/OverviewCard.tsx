@@ -2,15 +2,37 @@ import React from 'react';
 import './OverviewCard.css';
 import chargerImg from './assets/charger.jpg'; 
 
-interface OverviewCardProps {
-  monthlyPrice: number;
-  onetimePrice: number;
-  discounts: { name: string; value: number; enabled: boolean; format?: string }[];
-  totalOnetimeCosts: number;
+interface Discount {
+  name: string;
+  value: number;
+  enabled: boolean;
+  format?: string;
+  type?: string;
+  duration?: number;
 }
 
-const OverviewCard: React.FC<OverviewCardProps> = ({ monthlyPrice, onetimePrice, discounts, totalOnetimeCosts }) => {
+interface OverviewCardProps {
+  monthlyPrice: number;
+  discountedMonthlyPrice?: number;
+  discountMonths?: number;
+  onetimePrice: number;
+  totalOnetimeCosts: number;
+  discounts: Discount[];
+}
+
+const OverviewCard: React.FC<OverviewCardProps> = ({ monthlyPrice, discountedMonthlyPrice, discountMonths, onetimePrice, totalOnetimeCosts, discounts }) => {
   const enabledDiscounts = discounts.filter(d => d.enabled);
+
+  let firstMonths = 0;
+  let restMonths = 0;
+  let firstMonthsLabel = '';
+  let restMonthsLabel = '';
+  if (discountedMonthlyPrice !== undefined && discountMonths && discountMonths > 0) {
+    firstMonths = discountedMonthlyPrice * discountMonths;
+    restMonths = monthlyPrice * (12 - discountMonths);
+    firstMonthsLabel = `First ${discountMonths} months`;
+    restMonthsLabel = `Next ${12 - discountMonths} months`;
+  }
 
   return (
     <div className="overview-card">
@@ -51,6 +73,19 @@ const OverviewCard: React.FC<OverviewCardProps> = ({ monthlyPrice, onetimePrice,
           <span>Onetime costs excl. btw</span>
           <span>€ {totalOnetimeCosts.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>
         </div>
+        {/* Monthly discount summary */}
+        {discountedMonthlyPrice !== undefined && discountMonths && discountMonths > 0 && (
+          <>
+            <div className="overview-row overview-row-bold">
+              <span>{firstMonthsLabel}</span>
+              <span>€ {firstMonths.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>
+            </div>
+            <div className="overview-row overview-row-bold">
+              <span>{restMonthsLabel}</span>
+              <span>€ {restMonths.toLocaleString('nl-NL', { minimumFractionDigits: 2 })}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

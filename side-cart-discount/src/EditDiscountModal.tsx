@@ -31,7 +31,7 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
       setPriceType('one-time');
     }
   }, [discount, showAdd]);
-  const [duration, setDuration] = useState('');
+  const [duration, setDuration] = useState('1');
   const [description, setDescription] = useState('');
   const [total, setTotal] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -70,12 +70,23 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
   }, [discount]);
 
   React.useEffect(() => {
-    if ((discountType === '%' && discountValue > 5) || (discountType === '€' && discountValue > 50)) {
+    if (discountValue < 0) {
+      setError('Discount value cannot be negative');
+    } else if (priceType === 'monthly' && showAdd && Number(duration) < 0) {
+      setError('Duration cannot be negative');
+    } else if ((discountType === '%' && discountValue > 5) || (discountType === '€' && discountValue > 50)) {
       setError(discountType === '%' ? 'Discount cannot exceed 5%' : 'Discount cannot exceed 50€');
+    } else if (priceType === 'monthly' && showAdd) {
+      const dur = Number(duration);
+      if (!dur || dur < 1 || dur > 12) {
+        setError('Duration must be between 1 and 12 months');
+      } else {
+        setError(null);
+      }
     } else {
       setError(null);
     }
-  }, [discountType, discountValue]);
+  }, [discountType, discountValue, priceType, duration, showAdd]);
 
 
   return (
@@ -143,6 +154,7 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
               </Form.Select>
               <Form.Control 
                 type="number" 
+                min={0}
                 value={discountValue} 
                 onChange={e => {
                   const val = Number(e.target.value);
@@ -154,14 +166,31 @@ const EditDiscountModal: React.FC<EditDiscountModalProps> = ({ show, showAdd, di
               />
             </div>
             {!error && <Form.Text className="text-muted">The discount cannot exceed 5% or 50€</Form.Text>}
-            {error && <Form.Text className="text-muted error" style={{ color: 'red', marginTop: 4 }}>{error}</Form.Text>}
+            {error && !error.includes('Duration') && (
+              <Form.Text className="text-muted error" style={{ color: 'red', marginTop: 4 }}>{error}</Form.Text>
+            )}
           </Form.Group>
             {showAdd && (
             <>
             {priceType === 'monthly' && (
               <Form.Group className="mb-2" controlId="duration">
-              <Form.Label>Duration</Form.Label>
-              <Form.Control type="number" value={duration} onChange={e => setDuration(e.target.value)} placeholder="Number of months" />
+                <Form.Label>Duration</Form.Label>
+                <Form.Control 
+                  type="number" 
+                  min={1} 
+                  max={12} 
+                  value={duration} 
+                  onChange={e => {
+                    const val = Number(e.target.value);
+                    if (val < 0) return;
+                    setDuration(e.target.value);
+                  }} 
+                  placeholder="Number of months" 
+                  isInvalid={!!error && error.includes('Duration')}
+                />
+                {error && error.includes('Duration') && (
+                  <Form.Text className="text-muted error" style={{ color: 'red', marginTop: 4 }}>{error}</Form.Text>
+                )}
               </Form.Group>
             )}
               

@@ -18,7 +18,7 @@ interface Discount {
   enabled: boolean;
   type?: DiscountType;
   typeLabel?: string;
-  duration?: string;
+  duration?: number;
   description?: string;
 }
 
@@ -28,7 +28,7 @@ const initialDiscounts: Discount[] = [
   { id: 'discount-3', name: 'Discount name', format: '€', value: 250, editable: false, new: false, enabled: false, type: 'one-time', typeLabel: "One Time" },
   { id: 'discount-4', name: 'Discount name', format: '€', value: 0, editable: false, new: false, enabled: false, type: 'one-time', typeLabel: "One Time" },
   { id: 'discount-5', name: 'Discount name', format: '€', value: 250, editable: false, new: false, enabled: false, type: 'one-time', typeLabel: "One Time" },
-  { id: 'discount-6', name: 'Discount name', format: '%', value: 50, editable: true, new: false, enabled: false, type: 'monthly', typeLabel: "Monthly" },
+  { id: 'discount-6', name: 'Discount name', format: '%', value: 50, editable: true, new: false, enabled: false, type: 'monthly', typeLabel: "Monthly", duration:3 },
   { id: 'discount-7', name: 'Discount name', format: '€', value: 25, editable: false, new: false, enabled: false, type: 'one-time', typeLabel: "One Time" },
   { id: 'discount-8', name: 'Discount name', format: '€', value: 25, editable: false, new: false, enabled: false, type: 'one-time', typeLabel: "One Time" },
 ];
@@ -58,9 +58,45 @@ const DiscountsLanding: React.FC = () => {
   const [showAddDiscount, setShowAddDiscount] = React.useState(false);
   const [editIndex, setEditIndex] = React.useState<number | null>(null);
   const [totalOnetimeCosts, setTotalOnetimeCosts] = React.useState(1000);
+  const [discountedMonthly, setDiscountedMonthly] = React.useState(0);
+  const [normalMonthly, setNormalMonthly] = React.useState(0);
+  const [discountMonths, setDiscountMonths] = React.useState(0);
 
   React.useEffect(() => {
-    setTotalOnetimeCosts(calculateOnetimeCosts(discounts, 1000, 0));
+    // Base onetime price
+    let baseOnetime = 1000;
+    // Apply one-time discounts
+    const enabledOnetime = discounts.filter(d => d.enabled && d.type === 'one-time');
+    let onetimeDiscount = 0;
+    enabledOnetime.forEach(d => {
+      if (d.format === '%') {
+        onetimeDiscount += baseOnetime * (d.value / 100);
+      } else {
+        onetimeDiscount += d.value;
+      }
+    });
+    let discountedOnetime = baseOnetime - onetimeDiscount;
+    setTotalOnetimeCosts(discountedOnetime);
+
+    // Calculate base monthly price after one-time discounts
+    let baseMonthly = discountedOnetime / 12;
+    let discountedMonthly = baseMonthly;
+    let discountMonths = 0;
+
+    // Find the first enabled monthly discount with duration
+    const enabledMonthly = discounts.filter(d => d.enabled && d.type === 'monthly' && d.duration);
+    if (enabledMonthly.length > 0) {
+      const d = enabledMonthly[0];
+      discountMonths = d.duration || 0;
+      if (d.format === '%') {
+        discountedMonthly = baseMonthly - (baseMonthly * d.value / 100);
+      } else {
+        discountedMonthly = baseMonthly - d.value;
+      }
+    }
+    setDiscountedMonthly(discountedMonthly);
+    setNormalMonthly(baseMonthly);
+    setDiscountMonths(discountMonths);
   }, [discounts]);
 
   return (
@@ -98,7 +134,8 @@ const DiscountsLanding: React.FC = () => {
                       <img src={penIcon} alt="edit discount" />
                     </span>
                   )}
-                  - {d.format === '%' ? `${d.value}%` : `€ ${d.value},00`} {d.typeLabel}
+                    - {d.format === '%' ? `${d.value}%` : `€ ${d.value},00`} {d.typeLabel}
+                    {d.type === 'monthly' && d.duration ? ` first ${d.duration} month${d.duration > 1 ? 's' : ''}` : ''}
                 </td>
                 <td className="discount-switch-cell">
                   { 
@@ -157,8 +194,10 @@ const DiscountsLanding: React.FC = () => {
       </div>
       <div>
         <OverviewCard
-          monthlyPrice={10}
-          onetimePrice={1000}
+          monthlyPrice={normalMonthly}
+          discountedMonthlyPrice={discountedMonthly}
+          discountMonths={discountMonths}
+          onetimePrice={totalOnetimeCosts}
           totalOnetimeCosts={totalOnetimeCosts}
           discounts={discounts}
         />
@@ -188,7 +227,7 @@ const DiscountsLanding: React.FC = () => {
                   new: true,
                   type: priceType,
                   typeLabel: priceType === 'monthly' ? 'Monthly' : 'One Time',
-                  duration,
+                  duration: duration !== undefined ? Number(duration) : undefined,
                   description,
                 },
               ]);
